@@ -1,13 +1,13 @@
 const express = require("express");
 const usersRouter = express.Router();
-const validator = require("../middlewears/validator");
+const validator = require("../middlewares/validator");
 const controller = require("../controllers/usersController/users");
 
 const {
   symbolValidator,
 } = require("../controllers/usersController/usersValidators");
 
-usersRouter.get("/dashboard");
+usersRouter.get("/dashboard", controller.dashboard);
 
 usersRouter.get("/logout");
 

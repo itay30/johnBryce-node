@@ -14,11 +14,12 @@ class UserSymbol {
     };
     
     async findByUserId ({userId}) {
-        return this.db.execute(`
+        const result = await this.db.execute(`
             select * from users_symbols where user_id = ?
         `,[
             userId,
         ]);    
+        return result;
     };
     
 }
