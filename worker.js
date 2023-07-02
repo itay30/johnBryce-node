@@ -4,6 +4,10 @@ const axios = require("axios");
 const mysql = require("mysql2");
 const util = require("util");
 const config = require("config");
+const { io } = require("socket.io-client");
+const socket = io(
+  `http://${config.get("worker.app.host")}:${config.get("worker.app.port")}`
+);
 
 const symbolSchema = new mongoose.Schema({
   symbol: String,
@@ -28,20 +32,30 @@ const pool = mysql.createPool({
 pool.query = util.promisify(pool.query);
 pool.execute = util.promisify(pool.execute);
 
-scrape = async (symbolName) => {
-  const html = await axios(
-    `https://www.google.com/finance/quote/${symbolName}-USD`
-  );
-  const $ = cheerio.load(html.data);
-  const value = $(".YMlKec.fxKbKc").text().replace(",", "");
+const scrape = async (symbol) => {
+  try {
+    const html = await axios(
+      `https://www.google.com/finance/quote/${symbol.symbol}-USD`
+    );
+    const $ = cheerio.load(html.data);
+    const value = $(".YMlKec.fxKbKc").text().replace(",", "");
 
-  const symbol = new Symbol({
-    symbol: symbolName,
-    timestamp: Date.now(),
-    value: value,
-  });
+    const symbol = new Symbol({
+      symbol: symbolName,
+      timestamp: Date.now(),
+      value: value,
+    });
 
-  await symbol.save();
+    await symbolValue.save();
+    await socket.emit("message from worker", {
+      symbol: symbolValue.symbol,
+      value: symbolValue.value,
+    });
+    console.log(`saved ${symbolValue.value} for ${symbolValue.symbol}`);
+    return symbolValue;
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const loop = async () => {
@@ -52,10 +66,6 @@ const loop = async () => {
   await Promise.allSettled(promises);
   setTimeout(loop, 10000);
 };
-
-// hint
-// const instance = new SomeModel(modelData);
-// await instance.save();
 
 (async () => {
   try {

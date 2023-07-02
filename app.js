@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const path = require("path");
 const session = require("express-session");
 const app = express();
@@ -21,6 +22,9 @@ app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(sqlConnection);
+
+const uri = "mongodb://127.0.0.1:27017/mymongo?retryWrites=true&w=majority";
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 app.use(
   session({

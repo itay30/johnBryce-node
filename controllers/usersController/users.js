@@ -15,11 +15,10 @@ exports.dashboard = async (req, res, next) => {
   try {
     const userSymbol = new UserSymbol(req.db);
     const userSymbols = await userSymbol.findByUserId({
-      userId:123,
+      userId:1,
     });
     console.log(userSymbols);
     const promises = [];
-    console.log(Symbol.findOne({ symbol: userSymbol.symbol }));
     userSymbols.forEach((userSymbol) =>
       promises.push(
         Symbol.findOne({ symbol: userSymbol.symbol })
@@ -28,13 +27,13 @@ exports.dashboard = async (req, res, next) => {
       )
     );
     const symbolValues = await Promise.all(promises);
+    console.log(symbolValues);
 
-    res.render("/dashboard", {
+    res.render("users/dashboard", {
       userSymbols,
       symbolValues,
     });
   } catch (err) {
-    console.log(err);
     next(err);
   }
 };
