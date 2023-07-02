@@ -15,7 +15,7 @@ exports.dashboard = async (req, res, next) => {
   try {
     const userSymbol = new UserSymbol(req.db);
     const userSymbols = await userSymbol.findByUserId({
-      userId:1,
+      userId: req.user.id,
     });
     console.log(userSymbols);
     const promises = [];
